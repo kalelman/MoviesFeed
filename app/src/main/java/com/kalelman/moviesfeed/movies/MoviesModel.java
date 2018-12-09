@@ -1,5 +1,7 @@
 package com.kalelman.moviesfeed.movies;
 
+import com.kalelman.moviesfeed.http.apimodel.Result;
+
 import io.reactivex.Observable;
 import io.reactivex.functions.BiFunction;
 
