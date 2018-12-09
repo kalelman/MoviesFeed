@@ -43,10 +43,8 @@ public class MoviesPresenter implements MoviesMVP.Presenter {
                         if (view != null) {
                             view.showSnackBar("Información descargada con éxito");
                         }
-
                     }
                 });
-
     }
 
     @Override
