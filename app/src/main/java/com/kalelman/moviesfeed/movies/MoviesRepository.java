@@ -1,14 +1,28 @@
 package com.kalelman.moviesfeed.movies;
 
-
-
+import com.kalelman.moviesfeed.http.MoviesApiService;
+import com.kalelman.moviesfeed.http.MoviesExtraInfoApisService;
 import com.kalelman.moviesfeed.http.apimodel.Result;
 
 import io.reactivex.Observable;
 
-public interface MoviesRepository {
+public class MoviesRepository implements Repository {
 
-    Observable<Result> getResultData();
-    Observable<String> getCountryData();
+    private MoviesApiService moviesApiService;
+    private MoviesExtraInfoApisService moviesExtraInfoApisService;
 
+    public MoviesRepository(MoviesApiService mService, MoviesExtraInfoApisService eService) {
+        this.moviesApiService = mService;
+        this.moviesExtraInfoApisService = eService;
+    }
+
+    @Override
+    public Observable<Result> getResultData() {
+        return null;
+    }
+
+    @Override
+    public Observable<String> getCountryData() {
+        return null;
+    }
 }
