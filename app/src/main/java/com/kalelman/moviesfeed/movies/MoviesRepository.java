@@ -2,12 +2,18 @@ package com.kalelman.moviesfeed.movies;
 
 import com.kalelman.moviesfeed.http.MoviesApiService;
 import com.kalelman.moviesfeed.http.MoviesExtraInfoApisService;
+import com.kalelman.moviesfeed.http.apimodel.OmdbApi;
 import com.kalelman.moviesfeed.http.apimodel.Result;
+import com.kalelman.moviesfeed.http.apimodel.TopMoviesRated;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 public class MoviesRepository implements Repository {
 
@@ -39,7 +45,23 @@ public class MoviesRepository implements Repository {
 
     @Override
     public Observable<Result> getResultFromNetwork() {
-        return null;
+
+        Observable<TopMoviesRated> topMoviesRatedObservable = moviesApiService.getTopMoviesRated(1)
+                .concatWith(moviesApiService.getTopMoviesRated(2))
+                .concatWith(moviesApiService.getTopMoviesRated(3));
+
+        return topMoviesRatedObservable
+                .concatMap(new Function<TopMoviesRated, Observable<Result>>() {
+            @Override
+            public Observable<Result> apply(TopMoviesRated topMoviesRated) {
+                return Observable.fromIterable(topMoviesRated.getResults());
+            }
+        }).doOnNext(new Consumer<Result>() {
+                    @Override
+                    public void accept(Result result) {
+                        results.add(result);
+                    }
+                });
     }
 
     @Override
@@ -55,12 +77,32 @@ public class MoviesRepository implements Repository {
 
     @Override
     public Observable<Result> getResultData() {
-        return null;
+        return getResultFromCache().switchIfEmpty(getResultFromNetwork());
     }
 
     @Override
     public Observable<String> getCountryFromNetwork() {
-        return null;
+        return getResultFromNetwork()
+                .concatMap(new Function<Result, Observable<OmdbApi>>() {
+            @Override
+            public Observable<OmdbApi> apply(Result result) {
+                return moviesExtraInfoApisService.getExtraInfoMovie(result.getTitle());
+            }
+        }).concatMap(new Function<OmdbApi, Observable<String>>() {
+                    @Override
+                    public Observable<String> apply(OmdbApi omdbApi) {
+                        if (omdbApi == null || omdbApi.getCountry() == null) {
+                            return Observable.just("Desconocido");
+                        } else {
+                            return Observable.just(omdbApi.getCountry());
+                        }
+                    }
+                }).doOnNext(new Consumer<String>() {
+                    @Override
+                    public void accept(String country) {
+                        countries.add(country);
+                    }
+                });
     }
 
     @Override
@@ -76,6 +118,6 @@ public class MoviesRepository implements Repository {
 
     @Override
     public Observable<String> getCountryData() {
-        return null;
+        return getCountryFromCache().switchIfEmpty(getCountryFromNetwork());
     }
 }

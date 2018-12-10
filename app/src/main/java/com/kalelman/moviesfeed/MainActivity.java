@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements MoviesMVP.View {
     protected void onResume() {
         super.onResume();
         presenter.setView(this);
+        /*updateData(new ViewModel("Cogiendome a Briana Banderas", "Rusia"));
+        updateData(new ViewModel("Cogiendome a Briana Banderas", "Rusia"));*/
         presenter.loadData();
     }
 
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements MoviesMVP.View {
     @Override
     public void updateData(ViewModel viewModel) {
         resultList.add(viewModel);
-        listAdapter.notifyItemChanged(resultList.size()-1);
+        listAdapter.notifyItemInserted(resultList.size()-1);
         Log.i(TAG, "Title Name: " + viewModel.getName());
         Log.i(TAG, "Country Name: " + viewModel.getCountry());
     }
